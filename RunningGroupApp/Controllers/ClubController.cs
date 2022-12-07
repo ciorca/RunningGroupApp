@@ -1,13 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using RunningGroupApp.Data;
+using RunningGroupApp.Models;
 
 namespace RunningGroupApp.Controllers
 {
     public class ClubController : Controller
     {
+        private readonly AppDbContext _context;
 
+        public ClubController(AppDbContext context)
+        {
+            _context = context;
+        }
         public IActionResult Index()
         {
-            return View();
+            List<Club> clubs = _context.Clubs.ToList();
+            return View(clubs);
         }
     }
 }
