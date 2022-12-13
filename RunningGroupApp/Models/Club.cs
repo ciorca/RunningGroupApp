@@ -15,7 +15,7 @@ namespace RunningGroupApp.Models
         [ForeignKey("Address")]
         public int AddressId { get; set; }
 
-        public Address? Address { get; set; }
+        public Address Address { get; set; }
         public ClubCategory ClubCategory { get; set; }
 
         [ForeignKey("User")]
