@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using RunGroopWebApp.Data;
 using RunningGroupApp.Data;
+using RunningGroupApp.Helpers;
 using RunningGroupApp.Interfaces;
 using RunningGroupApp.Repository;
 
@@ -10,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IClubRepository, ClubRepository>();
 builder.Services.AddScoped<IRaceRepository, RaceRepository>();
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
 //Added database
 builder.Services.AddDbContext<AppDbContext>(options =>
