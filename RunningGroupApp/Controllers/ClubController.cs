@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using RunningGroupApp.Data;
 using RunningGroupApp.Interfaces;
 using RunningGroupApp.Models;
+using RunningGroupApp.ViewModels;
 
 namespace RunningGroupApp.Controllers
 {
@@ -10,11 +11,13 @@ namespace RunningGroupApp.Controllers
     {
        
         private readonly IClubRepository _clubRepository;
+        private readonly IPhotoService _photoService;
 
-        public ClubController(AppDbContext context, IClubRepository clubRepository)
+        public ClubController(AppDbContext context, IClubRepository clubRepository, IPhotoService photoService)
         {
            
             _clubRepository = clubRepository;
+            _photoService = photoService;
         }
         public async Task <IActionResult> Index()
         {
@@ -31,17 +34,56 @@ namespace RunningGroupApp.Controllers
             return View();
         }
         [HttpPost]
-        public async  Task<IActionResult> Create(Club club)
+        public async  Task<IActionResult> Create(CreateClubViewModel clubVM)
         {
             if (ModelState.IsValid)
             {
-                return View(club);
-            }
-            _clubRepository.Add(club);
-            return RedirectToAction("Index");
-        }
+                var result = await _photoService.AddPhotoAsync(clubVM.Image);
+                var club = new Club
+                {
+                    Title = clubVM.Title,
+                    Description = clubVM.Description,
+                    Image = result.Url.ToString(),
+                    Address = new Address
+                    {
+                        Street = clubVM.Address.Street,
+                        City = clubVM.Address.City,
+                        State = clubVM.Address.State
+                    }
 
-        
+                };
+                _clubRepository.Add(club);
+                return RedirectToAction("Index");
+            }
+            
+            else
+            {
+                ModelState.AddModelError("", "Upload Failed");
+            }
+            return View(clubVM);
+        }        
+        public async Task<IActionResult> Edit(int id)
+        {
+            var club = await _clubRepository.GetByIdAsync(id);
+            if(club == null)
+                return View("Error");
+            var clubVM = new EditClubViewModel
+            {
+                Title = club.Title,
+                Description = club.Description,
+                AddressId = club.AddressId,
+                Address = club.Address,
+                URL = club.Image,
+                ClubCategory = club.ClubCategory,
+                };
+            return View(clubVM);
+
+        }
+        [HttpPost]
+        public async Task<IActionResulyt> Edit(int id, EditClubViewModel)
+        {
+
+        }
 
     }
 }
